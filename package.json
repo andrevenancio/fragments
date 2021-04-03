@@ -1,0 +1,19 @@
+{
+  "name": "@andrevenancio/fragments",
+  "version": "0.0.1",
+  "source": "src/index.ts",
+  "main": "dist/fragments.js",
+  "exports": "./dist/fragments.modern.js",
+  "module": "dist/fragments.module.js",
+  "unpkg": "dist/fragments.umd.js",
+  "scripts": {
+    "build": "microbundle",
+    "dev": "microbundle watch",
+    "serve": "http-server -o ./dev",
+    "start": "npm run dev & npm run serve"
+  },
+  "dependencies": {
+    "http-server": "^0.12.3",
+    "microbundle": "^0.13.0"
+  }
+}
