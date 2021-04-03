@@ -1,5 +1,7 @@
 import { Fragment } from "./fragment"
 
+const VERSION = "dev"
+
 export class Renderer {
   width: number
   height: number
@@ -55,9 +57,9 @@ export class Renderer {
       0
     )
 
-    fragment.setU2f(this.gl, "uResolution", this.width, this.height)
-    fragment.setU1f(this.gl, "uTime", (Date.now() - this.now) / 1000)
-    fragment.setU2fv(this.gl, "uMouse", this.mouse)
+    fragment.setU2f(this.gl, "iResolution", this.width, this.height)
+    fragment.setU1f(this.gl, "iTime", (Date.now() - this.now) / 1000)
+    fragment.setU2fv(this.gl, "iMouse", this.mouse)
   }
 
   private init() {
@@ -82,7 +84,15 @@ export class Renderer {
       console.error("Couldn't start WebGL. Try get.webgl.org/troubleshooting")
     }
 
-    // quad
+    var args = [
+      `\n%cfragments%crenderer%c (${VERSION})\n`,
+      "background: #00ffff; color: #1A1A1A; font-size: x-small;",
+      "background: #1A1A1A; color: #00ffff; font-size: x-small;",
+      "background: transparent; color: #999999; font-size: x-small;",
+    ]
+
+    console.log.apply(console, args)
+
     const quad = new Float32Array([-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]); // prettier-ignore
     const buffer = this.gl.createBuffer()
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer)

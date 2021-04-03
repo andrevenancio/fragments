@@ -12,8 +12,8 @@
   "module": "dist/fragments.module.js",
   "unpkg": "dist/fragments.umd.js",
   "scripts": {
-    "build": "microbundle",
-    "dev": "microbundle watch",
+    "build": "microbundle --define VERSION='0.0.1'",
+    "dev": "microbundle --watch",
     "serve": "http-server -o ./dev",
     "start": "npm run dev & npm run serve"
   },

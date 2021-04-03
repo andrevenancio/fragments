@@ -1,5 +1,5 @@
 import { createProgram } from "./program"
-import { vertexShader, fragmentShader } from "./shaders"
+import { vertexShader, composeFragment } from "./shaders"
 
 export class Fragment {
   program: WebGLProgram
@@ -10,7 +10,7 @@ export class Fragment {
     this.attributes = {}
     this.uniforms = {}
 
-    this.program = createProgram(gl, vertexShader, fragmentShader)
+    this.program = createProgram(gl, vertexShader, composeFragment(fragment))
   }
 
   getAttribute(gl: WebGLRenderingContext, name: string) {
