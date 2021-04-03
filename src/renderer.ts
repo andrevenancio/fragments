@@ -64,6 +64,7 @@ export class Renderer {
     const canvas = document.createElement("canvas")
     canvas.width = this.width
     canvas.height = this.height
+    canvas.style.display = "block"
     document.body.appendChild(canvas)
 
     window.addEventListener("blur", this.onBlur)
