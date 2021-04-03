@@ -1,6 +1,9 @@
 {
   "name": "@andrevenancio/fragments",
   "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "repository": "https://github.com/andrevenancio/fragments",
   "source": "src/index.ts",
   "main": "dist/fragments.js",
   "exports": "./dist/fragments.modern.js",
