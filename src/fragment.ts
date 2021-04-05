@@ -41,7 +41,7 @@ export class Fragment {
     gl.uniform2fv(this.getUniform(gl, name), v2)
   }
 
-  setU1i(gl: WebGLRenderingContext, name: string, x: number) {
-    gl.uniform1i(this.getUniform(gl, name), x)
+  setU1i(gl: WebGLRenderingContext, name: string, level: number) {
+    gl.uniform1i(this.getUniform(gl, name), level)
   }
 }

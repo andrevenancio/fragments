@@ -1,27 +1,53 @@
 import { Fragment } from "./fragment"
+import { RenderTarget } from "./rendertarget"
 
 const VERSION = "dev"
+
+interface RendererProps {
+  autoClear: boolean
+  autoUpdate: boolean
+}
 
 export class Renderer {
   width: number
   height: number
-  fragments: Fragment[]
   mouse: Float32Array
+  fragments: Fragment[]
+  rendertargets: RenderTarget[]
+  currentrt: number
+  loaded: number
   ready: boolean
   pause: boolean
-  gl: WebGLRenderingContext
   now: number
+  gl: WebGLRenderingContext
+  props: RendererProps = {
+    autoClear: true,
+    autoUpdate: false,
+  }
 
-  constructor() {
+  constructor(props = {} as Partial<RendererProps>) {
+    Object.assign(this.props, props)
+
+    // renderer dimensions
     this.width = 320
     this.height = 240
 
-    this.fragments = []
-
+    // mouse position
     this.mouse = new Float32Array(2)
+
+    // fragments & rendertargets
+    this.fragments = []
+    this.rendertargets = []
+
+    // which rendertarget are we using
+    this.currentrt = 0
+
+    // how many fragments got loaded
+    this.loaded = 0
 
     this.ready = false
     this.pause = false
+
     this.now = Date.now()
 
     if (window.WebGLRenderingContext) {
@@ -60,6 +86,7 @@ export class Renderer {
     fragment.setU2f(this.gl, "iResolution", this.width, this.height)
     fragment.setU1f(this.gl, "iTime", (Date.now() - this.now) / 1000)
     fragment.setU2fv(this.gl, "iMouse", this.mouse)
+    fragment.setU1i(this.gl, "iInput", 0)
   }
 
   private init() {
@@ -69,12 +96,13 @@ export class Renderer {
     canvas.style.display = "block"
     document.body.appendChild(canvas)
 
-    window.addEventListener("blur", this.onBlur)
-    window.addEventListener("focus", this.onFocus)
+    // window.addEventListener("blur", this.onBlur)
+    // window.addEventListener("focus", this.onFocus)
     window.addEventListener("mousemove", this.onMove)
 
     this.gl = canvas.getContext("webgl")
 
+    // this.gl.getExtension("EXT_color_buffer_float") // webgl2
     this.gl.getExtension("OES_texture_float")
     this.gl.getExtension("OES_standard_derivatives")
     this.gl.getExtension("OES_float_linear")
@@ -93,7 +121,11 @@ export class Renderer {
 
     console.log.apply(console, args)
 
-    const quad = new Float32Array([-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]); // prettier-ignore
+    const rt1 = new RenderTarget(this.gl, 512, 512, 0)
+    const rt2 = new RenderTarget(this.gl, 512, 512, 1)
+    this.rendertargets = [rt1, rt2]
+
+    const quad = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1])
     const buffer = this.gl.createBuffer()
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, quad, this.gl.STATIC_DRAW)
@@ -107,20 +139,37 @@ export class Renderer {
     this.gl.canvas.height = this.height
 
     this.gl.viewport(0, 0, this.width, this.height)
+
+    this.rendertargets.forEach((rt) => {
+      rt.setSize(this.gl, this.width, this.height)
+    })
   }
 
   // loads external fragment file.frag
   public loadFragment(url: string) {
+    this.ready = false
+    const index = this.fragments.length
+    this.fragments.push(null)
     fetch(url)
       .then((e) => e.text())
-      .then((raw) => this.raw(raw))
+      .then((raw) => this.raw(raw, index))
   }
 
   // adds a raw fragment to the renderer
-  public raw(fragment: string) {
+  public raw(fragment: string, optionalIndex?: number) {
     this.ready = false
-    this.fragments.push(new Fragment(this.gl, fragment))
-    this.ready = true
+
+    const frag = new Fragment(this.gl, fragment)
+    if (typeof optionalIndex === "number") {
+      this.fragments[optionalIndex] = frag
+    } else {
+      this.fragments.push(frag)
+    }
+    this.loaded++
+
+    if (this.fragments.length === this.loaded) {
+      this.ready = true
+    }
   }
 
   public clear(r: number = 0, g: number = 0, b: number = 0, a: number = 1) {
@@ -132,11 +181,45 @@ export class Renderer {
     if (this.ready !== true) return
     if (this.pause) return
 
-    this.clear()
+    if (this.props.autoClear) {
+      this.clear()
+    }
 
+    // old single shader pass
     for (let i = 0; i < this.fragments.length; i++) {
+      console.log(this.rendertargets)
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.rendertargets[0].texture)
       this.useFragment(this.fragments[i])
       this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
     }
+
+    // THIS WORKS (1 shader rendering to screen)
+    /*
+    // draw to texture
+this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.rendertargets[0].fbo)
+this.useFragment(this.fragments[0])
+this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
+
+    // draw texture to screen
+this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
+this.gl.bindTexture(this.gl.TEXTURE_2D, this.rendertargets[0].texture)
+
+this.useFragment(this.fragments[1])
+this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
+    // this.rendertargets.reverse()
+
+    */
+
+    // // draw to texture
+    // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.rendertargets[0].fbo)
+    // this.useFragment(this.fragments[0])
+    // this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
+
+    // // draw texture to screen
+    // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
+    // this.gl.bindTexture(this.gl.TEXTURE_2D, this.rendertargets[0].texture)
+
+    // this.useFragment(this.fragments[1])
+    // this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
   }
 }
