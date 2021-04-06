@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <title>Dev</title>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        background: #000000;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import { Renderer } from "../dist/fragments.module.js"
+
+      let renderer
+
+      const setup = () => {
+        renderer = new Renderer()
+        renderer.loadFragment("passr.frag")
+        renderer.loadFragment("passg.frag")
+        // renderer.loadFragment("passb.frag")
+        // renderer.loadFragment("image.frag") // this should be hidden
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        window.addEventListener("resize", resize)
+      }
+
+      const resize = () => {
+        renderer.setSize(window.innerWidth, window.innerHeight)
+      }
+
+      const update = () => {
+        renderer.render()
+        requestAnimationFrame(update)
+      }
+
+      setup()
+      update()
+    </script>
+  </body>
+</html>
