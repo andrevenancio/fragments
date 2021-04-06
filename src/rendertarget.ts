@@ -13,7 +13,7 @@ export class RenderTarget {
   ) {
     this.width = 1
     this.height = 1
-    this.level = 0
+    this.level = level
 
     this.texture = gl.createTexture()
     // gl.activeTexture(gl.TEXTURE0 + this.level)

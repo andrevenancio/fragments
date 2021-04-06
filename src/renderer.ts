@@ -14,6 +14,8 @@ export class Renderer {
   mouse: Float32Array
   fragments: Fragment[]
   rendertargets: RenderTarget[]
+  originalImageTexture: RenderTarget
+  quadbuffer: WebGLBuffer
   currentrt: number
   loaded: number
   ready: boolean
@@ -86,7 +88,6 @@ export class Renderer {
     fragment.setU2f(this.gl, "iResolution", this.width, this.height)
     fragment.setU1f(this.gl, "iTime", (Date.now() - this.now) / 1000)
     fragment.setU2fv(this.gl, "iMouse", this.mouse)
-    fragment.setU1i(this.gl, "iInput", 0)
   }
 
   private init() {
@@ -121,13 +122,17 @@ export class Renderer {
 
     console.log.apply(console, args)
 
-    const rt1 = new RenderTarget(this.gl, 512, 512, 0)
-    const rt2 = new RenderTarget(this.gl, 512, 512, 1)
+    // create initial black texture which will be feed into the very first fragment
+    this.originalImageTexture = new RenderTarget(this.gl, 512, 512, 0)
+
+    // create 2 framebuffers so we can ping pong effects around
+    const rt1 = new RenderTarget(this.gl, 512, 512, 1)
+    const rt2 = new RenderTarget(this.gl, 512, 512, 2)
     this.rendertargets = [rt1, rt2]
 
     const quad = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1])
-    const buffer = this.gl.createBuffer()
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer)
+    this.quadbuffer = this.gl.createBuffer()
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.quadbuffer)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, quad, this.gl.STATIC_DRAW)
   }
 
@@ -139,6 +144,8 @@ export class Renderer {
     this.gl.canvas.height = this.height
 
     this.gl.viewport(0, 0, this.width, this.height)
+
+    this.originalImageTexture.setSize(this.gl, this.width, this.height)
 
     this.rendertargets.forEach((rt) => {
       rt.setSize(this.gl, this.width, this.height)
@@ -177,6 +184,10 @@ export class Renderer {
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT)
   }
 
+  private getNext = (current: number) => {
+    return (current + 1) % 2
+  }
+
   public render() {
     if (this.ready !== true) return
     if (this.pause) return
@@ -185,41 +196,42 @@ export class Renderer {
       this.clear()
     }
 
-    // old single shader pass
-    for (let i = 0; i < this.fragments.length; i++) {
-      console.log(this.rendertargets)
-      this.gl.bindTexture(this.gl.TEXTURE_2D, this.rendertargets[0].texture)
+    // start with the original image
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.originalImageTexture.fbo)
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.originalImageTexture.texture)
+
+    // loop through each effect we want to apply.
+    for (let i = 0; i < this.fragments.length - 1; ++i) {
+      // Setup to draw into one of the framebuffers.
+      this.gl.bindFramebuffer(
+        this.gl.FRAMEBUFFER,
+        this.rendertargets[i % 2].fbo
+      )
       this.useFragment(this.fragments[i])
       this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
+
+      // for the next draw, use the texture we just rendered to.
+      this.gl.bindTexture(this.gl.TEXTURE_2D, this.rendertargets[i % 2].texture)
     }
 
-    // THIS WORKS (1 shader rendering to screen)
-    /*
-    // draw to texture
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
+    this.useFragment(this.fragments[this.fragments.length - 1])
+    this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
+  }
+}
+
+/*
+// THIS WORKS (1 shader rendering to screen)
+// draw to texture
 this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.rendertargets[0].fbo)
 this.useFragment(this.fragments[0])
 this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
 
-    // draw texture to screen
+// draw texture to screen
 this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
 this.gl.bindTexture(this.gl.TEXTURE_2D, this.rendertargets[0].texture)
 
 this.useFragment(this.fragments[1])
 this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
-    // this.rendertargets.reverse()
-
-    */
-
-    // // draw to texture
-    // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.rendertargets[0].fbo)
-    // this.useFragment(this.fragments[0])
-    // this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
-
-    // // draw texture to screen
-    // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
-    // this.gl.bindTexture(this.gl.TEXTURE_2D, this.rendertargets[0].texture)
-
-    // this.useFragment(this.fragments[1])
-    // this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
-  }
-}
+// this.rendertargets.reverse()
+*/
