@@ -197,17 +197,19 @@ export class Renderer {
     }
 
     // start with the original image
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.originalImageTexture.fbo)
+    // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.originalImageTexture.fbo)
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.originalImageTexture.texture)
 
     // loop through each effect we want to apply.
-    for (let i = 0; i < this.fragments.length - 1; ++i) {
+    for (let i = 0; i < this.fragments.length; ++i) {
+      console.log("draw fragment", i, "to render target", i % 2)
       // Setup to draw into one of the framebuffers.
       this.gl.bindFramebuffer(
         this.gl.FRAMEBUFFER,
         this.rendertargets[i % 2].fbo
       )
       this.useFragment(this.fragments[i])
+      this.gl.viewport(0, 0, this.width, this.height) // DO I NEED THIS?
       this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
 
       // for the next draw, use the texture we just rendered to.
@@ -216,6 +218,7 @@ export class Renderer {
 
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
     this.useFragment(this.fragments[this.fragments.length - 1])
+    this.gl.viewport(0, 0, this.width, this.height) // DO I NEED THIS?
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
   }
 }
