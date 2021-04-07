@@ -18,31 +18,32 @@
   </head>
   <body>
     <script type="module">
-      import { Renderer } from "../dist/fragments.module.js"
+      import { Renderer } from '../dist/fragments.esm.js';
 
-      let renderer
+      let renderer;
 
       const setup = () => {
-        renderer = new Renderer()
-        renderer.loadFragment("passr.frag")
-        renderer.loadFragment("passg.frag")
-        // renderer.loadFragment("passb.frag")
-        renderer.loadFragment("image.frag") // this should be hidden
-        renderer.setSize(window.innerWidth, window.innerHeight)
-        window.addEventListener("resize", resize)
-      }
+        renderer = new Renderer();
+        renderer.loadFragment('first.frag');
+        renderer.loadFragment('noise.frag');
+        // renderer.loadFragment('passr.frag');
+        // renderer.loadFragment('passg.frag');
+        // renderer.loadFragment('image.frag');
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        window.addEventListener('resize', resize);
+      };
 
       const resize = () => {
-        renderer.setSize(window.innerWidth, window.innerHeight)
-      }
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      };
 
       const update = () => {
-        renderer.render()
-        requestAnimationFrame(update)
-      }
+        renderer.render();
+        requestAnimationFrame(update);
+      };
 
-      setup()
-      update()
+      setup();
+      update();
     </script>
   </body>
 </html>

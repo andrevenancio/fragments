@@ -1,3 +1,3 @@
-import { Renderer } from "./renderer"
+import { Renderer } from './renderer';
 
-export { Renderer }
+export { Renderer };

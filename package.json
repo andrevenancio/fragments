@@ -18,11 +18,13 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch",
+    "start": "npm run dev & npm run serve",
+    "dev": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
+    "serve": "http-server",
     "size": "size-limit",
     "analyze": "size-limit --why"
   },
