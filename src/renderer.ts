@@ -1,7 +1,7 @@
 import { Fragment } from './fragment';
 import { RenderTarget } from './rendertarget';
 
-const VERSION = '0.0.3';
+const VERSION = '0.0.2';
 
 interface RendererProps {
   autoClear: boolean;
