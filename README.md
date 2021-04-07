@@ -12,46 +12,37 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 }
 ```
 
-Behind the scenes this snippet gets injected into
-
 ## Usage
 
 A simple example using a external `.frag` file
 
 ```javascript
-import { Renderer } from "@andrevenancio/fragments"
+import { Renderer } from '@andrevenancio/fragments';
 
-const renderer = new Renderer()
-renderer.loadFragment("test.frag")
-renderer.setSize(window.innerWidth, window.innerHeight)
+const renderer = new Renderer();
+renderer.loadFragment('pass1.frag');
+renderer.loadFragment('pass2.frag');
+renderer.setSize(window.innerWidth, window.innerHeight);
 ```
 
-```glsl
 pass1.frag
-precision highp float;
-uniform float iTime;
-uniform vec2 iResolution;
 
-void main() {
+```glsl
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    vec4 color = vec4(uv, 1.0, 1.0);
-    gl_FragColor = color;
+    fragColor = vec4(uv, 0.5 + 0.5 * cos(iTime), 1.0);
 }
 ```
 
-```glsl
 pass2.frag
-precision highp float;
-uniform float iTime;
-uniform vec2 iResolution;
-uniform vec2 iMouse;
-uniform sampler2D iChannel0;
 
-void main() {
+```glsl
+float grain (vec2 st, float t) {
+    return fract(sin(dot(st.xy, vec2(17.0,180.))) * 2500. + t);
+}
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    vec4 color = texture2D(iChannel0, uv);
-    color.y = 0.5 + 0.5 * cos(iTime);
-    color.y +=0.01;
-    gl_FragColor = color;
+    fragColor = mix(texture2D(iInput, uv), vec4(vec3(grain(uv, iTime * 0.5)), 1.0), 0.04);
 }
 ```
