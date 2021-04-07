@@ -14,15 +14,32 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
 ## Usage
 
-A simple example using a external `.frag` file
+A simple example using a 2external `.frag` file
 
 ```javascript
-import { Renderer } from '@andrevenancio/fragments';
+import { Renderer } from "@andrevenancio/fragments"
 
-const renderer = new Renderer();
-renderer.loadFragment('pass1.frag');
-renderer.loadFragment('pass2.frag');
-renderer.setSize(window.innerWidth, window.innerHeight);
+let renderer
+
+const setup = () => {
+  renderer = new Renderer()
+  renderer.loadFragment("pass1.frag")
+  renderer.loadFragment("pass2.frag")
+  renderer.setSize(window.innerWidth, window.innerHeight)
+  window.addEventListener("resize", resize)
+}
+
+const resize = () => {
+  renderer.setSize(window.innerWidth, window.innerHeight)
+}
+
+const update = () => {
+  renderer.render()
+  requestAnimationFrame(update)
+}
+
+setup()
+update()
 ```
 
 pass1.frag
