@@ -1,7 +1,7 @@
 import { Fragment } from './fragment';
 import { RenderTarget } from './rendertarget';
 
-const VERSION = '0.0.2';
+const VERSION = '0.0.3';
 
 interface RendererProps {
   autoClear: boolean;
@@ -59,13 +59,13 @@ export class Renderer {
     }
   }
 
-  private onBlur = () => {
-    this.pause = true;
-  };
+  // private onBlur = () => {
+  //   this.pause = true;
+  // };
 
-  private onFocus = () => {
-    this.pause = false;
-  };
+  // private onFocus = () => {
+  //   this.pause = false;
+  // };
 
   private onMove = (e: MouseEvent) => {
     this.mouse[0] = e.clientX;
@@ -97,8 +97,8 @@ export class Renderer {
     canvas.style.display = 'block';
     document.body.appendChild(canvas);
 
-    window.addEventListener('blur', this.onBlur);
-    window.addEventListener('focus', this.onFocus);
+    // window.addEventListener('blur', this.onBlur);
+    // window.addEventListener('focus', this.onFocus);
     window.addEventListener('mousemove', this.onMove);
 
     this.gl = canvas.getContext('webgl');
