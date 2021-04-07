@@ -5,18 +5,11 @@ export class RenderTarget {
   height: number
   level: number
 
-  constructor(
-    gl: WebGLRenderingContext,
-    width: number,
-    height: number,
-    level: number
-  ) {
+  constructor(gl: WebGLRenderingContext, width: number, height: number) {
     this.width = 1
     this.height = 1
-    this.level = level
 
     this.texture = gl.createTexture()
-    // gl.activeTexture(gl.TEXTURE0 + this.level)
     gl.bindTexture(gl.TEXTURE_2D, this.texture)
     const internalFormat = gl.RGBA
     const border = 0
@@ -25,7 +18,7 @@ export class RenderTarget {
     const data = new Uint8Array([0, 255, 255, 255]) // null
     gl.texImage2D(
       gl.TEXTURE_2D,
-      this.level,
+      0,
       internalFormat,
       this.width,
       this.height,
@@ -50,7 +43,7 @@ export class RenderTarget {
       this.level
     )
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+    // gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   }
 
   setSize(gl: WebGLRenderingContext, width: number, height: number) {
@@ -71,6 +64,6 @@ export class RenderTarget {
     )
     gl.bindTexture(gl.TEXTURE_2D, null)
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+    // gl.bindFramebuffer(gl.FRAMEBUFFER, null)
   }
 }

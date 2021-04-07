@@ -1,24 +1,58 @@
 {
   "name": "@andrevenancio/fragments",
   "version": "0.0.2",
+  "author": "André Venâncio",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/andrevenancio/fragments.git"
   },
-  "source": "src/index.ts",
-  "main": "dist/fragments.js",
-  "exports": "./dist/fragments.modern.js",
-  "module": "dist/fragments.module.js",
-  "unpkg": "dist/fragments.umd.js",
-  "scripts": {
-    "build": "microbundle --define VERSION='0.0.1'",
-    "dev": "microbundle --watch",
-    "serve": "http-server -o ./dev",
-    "start": "npm run dev & npm run serve"
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "module": "dist/mylib.esm.js",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
   },
-  "dependencies": {
-    "http-server": "^0.12.3",
-    "microbundle": "^0.13.0"
-  }
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why"
+  },
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^4.10.2",
+    "husky": "^6.0.0",
+    "size-limit": "^4.10.2",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.2.0",
+    "typescript": "^3.9.9"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "size-limit": [
+    {
+      "path": "dist/mylib.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/mylib.esm.js",
+      "limit": "10 KB"
+    }
+  ]
 }

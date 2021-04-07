@@ -123,11 +123,11 @@ export class Renderer {
     console.log.apply(console, args)
 
     // create initial black texture which will be feed into the very first fragment
-    this.originalImageTexture = new RenderTarget(this.gl, 512, 512, 0)
+    this.originalImageTexture = new RenderTarget(this.gl, 512, 512)
 
     // create 2 framebuffers so we can ping pong effects around
-    const rt1 = new RenderTarget(this.gl, 512, 512, 1)
-    const rt2 = new RenderTarget(this.gl, 512, 512, 2)
+    const rt1 = new RenderTarget(this.gl, 512, 512)
+    const rt2 = new RenderTarget(this.gl, 512, 512)
     this.rendertargets = [rt1, rt2]
 
     const quad = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1])
@@ -202,14 +202,14 @@ export class Renderer {
 
     // loop through each effect we want to apply.
     for (let i = 0; i < this.fragments.length; ++i) {
-      console.log("draw fragment", i, "to render target", i % 2)
+      // console.log("draw fragment", i, "to render target", i % 2)
       // Setup to draw into one of the framebuffers.
       this.gl.bindFramebuffer(
         this.gl.FRAMEBUFFER,
         this.rendertargets[i % 2].fbo
       )
       this.useFragment(this.fragments[i])
-      this.gl.viewport(0, 0, this.width, this.height) // DO I NEED THIS?
+      // this.gl.viewport(0, 0, this.width, this.height) // DO I NEED THIS?
       this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
 
       // for the next draw, use the texture we just rendered to.
@@ -218,7 +218,7 @@ export class Renderer {
 
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null)
     this.useFragment(this.fragments[this.fragments.length - 1])
-    this.gl.viewport(0, 0, this.width, this.height) // DO I NEED THIS?
+    // this.gl.viewport(0, 0, this.width, this.height) // DO I NEED THIS?
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6)
   }
 }
