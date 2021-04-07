@@ -9,6 +9,7 @@ export const composeFragment = (fragment?: string) => {
 
   return `
   precision highp float;
+  precision mediump int;
 
   uniform vec2 iResolution;
   uniform float iTime;
@@ -21,9 +22,9 @@ export const composeFragment = (fragment?: string) => {
   void main() {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
     vec4 color = texture2D(iInput, uv);
-    
+
     mainImage(color, gl_FragCoord.xy);
-    
+
     gl_FragColor = color;
   }
   `;
