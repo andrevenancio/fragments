@@ -14,32 +14,65 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
 ## Usage
 
-A simple example using a 2external `.frag` file
-
 ```javascript
-import { Renderer } from "@andrevenancio/fragments"
+import { Renderer } from '@andrevenancio/fragments';
 
-let renderer
+let renderer;
+
+const fragment = `
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    fragColor = vec4(uv, 0.5 + 0.5 * cos(iTime), 1.0);
+}`;
 
 const setup = () => {
-  renderer = new Renderer()
-  renderer.loadFragment("pass1.frag")
-  renderer.loadFragment("pass2.frag")
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  window.addEventListener("resize", resize)
-}
+  renderer = new Renderer();
+  renderer.raw(fragment);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  window.addEventListener('resize', resize);
+};
 
 const resize = () => {
-  renderer.setSize(window.innerWidth, window.innerHeight)
-}
+  renderer.setSize(window.innerWidth, window.innerHeight);
+};
 
 const update = () => {
-  renderer.render()
-  requestAnimationFrame(update)
-}
+  renderer.render();
+  requestAnimationFrame(update);
+};
 
-setup()
-update()
+setup();
+update();
+```
+
+## Chaining
+
+A simple example using a 2 external `.frag` file
+
+```javascript
+import { Renderer } from '@andrevenancio/fragments';
+
+let renderer;
+
+const setup = () => {
+  renderer = new Renderer();
+  renderer.loadFragment('pass1.frag');
+  renderer.loadFragment('pass2.frag');
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  window.addEventListener('resize', resize);
+};
+
+const resize = () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+};
+
+const update = () => {
+  renderer.render();
+  requestAnimationFrame(update);
+};
+
+setup();
+update();
 ```
 
 pass1.frag
