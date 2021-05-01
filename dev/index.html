@@ -24,7 +24,8 @@
 
       const setup = () => {
         renderer = new Renderer();
-        renderer.loadFragment('raw.frag');
+        renderer.loadFragment('first.frag');
+        // renderer.loadFragment('raw.frag');
         renderer.loadFragment('noise.frag');
         renderer.setSize(window.innerWidth, window.innerHeight);
         window.addEventListener('resize', resize);
